@@ -151,7 +151,7 @@ class App {
 	presetCredentialsLoaded: boolean;
 	analytics: Analytics;
 
-	constructor(analytics: Analytics) {
+	constructor() {
 		this.app = express();
 
 		this.endpointWebhook = config.get('endpoints.webhook') as string;
@@ -179,7 +179,7 @@ class App {
 		this.sslCert = config.get('ssl_cert');
 
 		this.externalHooks = ExternalHooks();
-		this.analytics = analytics;
+		this.analytics = new Analytics(this.frontendSettings.instanceId);
 
 		this.presetCredentialsLoaded = false;
 		this.endpointPresetCredentials = config.get('credentials.overwrite.endpoint') as string;
@@ -2173,11 +2173,11 @@ class App {
 
 }
 
-export async function start(analytics: Analytics): Promise<void> {
+export async function start(): Promise<void> {
 	const PORT = config.get('port');
 	const ADDRESS = config.get('listen_address');
 
-	const app = new App(analytics);
+	const app = new App();
 
 	await app.config();
 
@@ -2200,7 +2200,7 @@ export async function start(analytics: Analytics): Promise<void> {
 		console.log(`Version: ${versions.cli}`);
 
 		await app.externalHooks.run('n8n.ready', [app]);
-		analytics.track('Instance started');
+		app.analytics.track('Instance started');
 	});
 }
 
