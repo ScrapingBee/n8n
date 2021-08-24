@@ -191,7 +191,7 @@ class App {
 		};
 
 		if(analyticsSettings.enabled) {
-			analyticsSettings.config = config.get(`analytics.config`) as IRudderAnalyticsConfig;
+			analyticsSettings.config = config.get('analytics.config.frontend') as IRudderAnalyticsConfig;
 		}
 
 		this.frontendSettings = {
@@ -2200,6 +2200,7 @@ export async function start(analytics: Analytics): Promise<void> {
 		console.log(`Version: ${versions.cli}`);
 
 		await app.externalHooks.run('n8n.ready', [app]);
+		analytics.track('Instance started');
 	});
 }
 

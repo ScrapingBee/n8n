@@ -647,17 +647,33 @@ const config = convict({
 			env: 'N8N_ANALYTICS_ENABLED',
 		},
 		config: {
-			key: {
-				doc: 'Rudder key.',
-				format: String,
-				default: '1wfxw1YdRGrntY8intaq53hui51',
-				env: 'N8N_ANALYTICS_RUDDER_KEY',
+			frontend: {
+				key: {
+					doc: 'Rudder key for frontend.',
+					format: String,
+					default: '1wfyHJrZGsJmqh86XcncyX2SN3T',
+					env: 'N8N_ANALYTICS_RUDDER_KEY_FRONTEND',
+				},
+				url: {
+					doc: 'Rudder data plane URL for frontend.',
+					format: String,
+					default: 'http://localhost:8878',
+					env: 'N8N_ANALYTICS_RUDDER_DATA_PLANE_URL_FRONTEND',
+				},
 			},
-			url: {
-				doc: 'Rudder data plane URL.',
-				format: String,
-				default: 'http://localhost:8878',
-				env: 'N8N_ANALYTICS_RUDDER_DATA_PLANE_URL',
+			backend: {
+				key: {
+					doc: 'Rudder key for backend.',
+					format: String,
+					default: '1wfxw1YdRGrntY8intaq53hui51',
+					env: 'N8N_ANALYTICS_RUDDER_KEY_BACKEND',
+				},
+				url: {
+					doc: 'Rudder data plane URL for backend.',
+					format: String,
+					default: 'http://localhost:8878',
+					env: 'N8N_ANALYTICS_RUDDER_DATA_PLANE_URL_BACKEND',
+				},
 			},
 		}
 	},
