@@ -179,7 +179,6 @@ class App {
 		this.sslCert = config.get('ssl_cert');
 
 		this.externalHooks = ExternalHooks();
-		this.analytics = new Analytics(this.frontendSettings.instanceId);
 
 		this.presetCredentialsLoaded = false;
 		this.endpointPresetCredentials = config.get('credentials.overwrite.endpoint') as string;
@@ -246,6 +245,8 @@ class App {
 		this.versions = await GenericHelpers.getVersions();
 		this.frontendSettings.versionCli = this.versions.cli;
 		this.frontendSettings.instanceId = await generateInstanceId() as string;
+
+		this.analytics = new Analytics(this.frontendSettings.instanceId);
 
 		await this.externalHooks.run('frontend.settings', [this.frontendSettings]);
 
