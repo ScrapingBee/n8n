@@ -6,6 +6,6 @@ export async function generateNodesGraph(workflow: WorkflowEntity): Promise<IDat
 		node_types: workflow.nodes.map(node => node.type.split('.')[1]),
 		connections: workflow.connections,
 	};
-	
+
 	return nodeGraph;
 }
