@@ -265,6 +265,10 @@ export interface IExternalHooksClass {
 	run(hookName: string, hookParameters?: any[]): Promise<void>; // tslint:disable-line:no-any
 }
 
+export interface IInternalHooksClass {
+	onWorkflowSave(workflow: WorkflowEntity): Promise<void>;
+}
+
 export interface IN8nConfig {
 	database: IN8nConfigDatabase;
 	endpoints: IN8nConfigEndpoints;

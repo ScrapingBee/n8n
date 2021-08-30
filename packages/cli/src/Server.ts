@@ -117,10 +117,12 @@ import { OptionsWithUrl } from 'request-promise-native';
 import { Registry } from 'prom-client';
 
 import * as TagHelpers from './TagHelpers';
+import { Analytics } from './analytics';
 import { TagEntity } from './databases/entities/TagEntity';
 import { WorkflowEntity } from './databases/entities/WorkflowEntity';
 import { WorkflowNameRequest } from './WorkflowHelpers';
-import { Analytics } from './Analytics';
+import { IInternalHooksClass } from './Interfaces';
+import { InternalHooks } from './internalHooks';
 
 class App {
 
@@ -131,6 +133,7 @@ class App {
 	endpointWebhookTest: string;
 	endpointPresetCredentials: string;
 	externalHooks: IExternalHooksClass;
+	internalHooks: IInternalHooksClass;
 	defaultWorkflowName: string;
 	saveDataErrorExecution: string;
 	saveDataSuccessExecution: string;
@@ -180,16 +183,17 @@ class App {
 
 		this.externalHooks = ExternalHooks();
 
+
 		this.presetCredentialsLoaded = false;
 		this.endpointPresetCredentials = config.get('credentials.overwrite.endpoint') as string;
 
 		const urlBaseWebhook = WebhookHelpers.getWebhookBaseUrl();
 
-		let analyticsSettings: IAnalyticsSettings = {
+		const analyticsSettings: IAnalyticsSettings = {
 			enabled: config.get('analytics.enabled') as boolean,
 		};
 
-		if(analyticsSettings.enabled) {
+		if (analyticsSettings.enabled) {
 			analyticsSettings.config = config.get('analytics.config.frontend') as IRudderAnalyticsConfig;
 		}
 
@@ -246,7 +250,8 @@ class App {
 		this.frontendSettings.versionCli = this.versions.cli;
 		this.frontendSettings.instanceId = await generateInstanceId() as string;
 
-		this.analytics = new Analytics(this.frontendSettings.instanceId);
+		this.analytics = new Analytics(this.frontendSettings.instanceId, this.versions.cli);
+		this.internalHooks = new InternalHooks(this.analytics);
 
 		await this.externalHooks.run('frontend.settings', [this.frontendSettings]);
 
@@ -721,6 +726,7 @@ class App {
 			}
 
 			await this.externalHooks.run('workflow.afterUpdate', [workflow]);
+			this.internalHooks.onWorkflowSave(workflow);
 
 			if (workflow.active === true) {
 				// When the workflow is supposed to be active add it again
@@ -1672,16 +1678,16 @@ class App {
 				.take(limit);
 
 			Object.keys(filter).forEach((filterField) => {
-				resultsQuery.andWhere(`execution.${filterField} = :${filterField}`, {[filterField]: filter[filterField]});
+				resultsQuery.andWhere(`execution.${filterField} = :${filterField}`, { [filterField]: filter[filterField] });
 			});
 			if (req.query.lastId) {
-				resultsQuery.andWhere(`execution.id < :lastId`, {lastId: req.query.lastId});
+				resultsQuery.andWhere(`execution.id < :lastId`, { lastId: req.query.lastId });
 			}
 			if (req.query.firstId) {
-				resultsQuery.andWhere(`execution.id > :firstId`, {firstId: req.query.firstId});
+				resultsQuery.andWhere(`execution.id > :firstId`, { firstId: req.query.firstId });
 			}
 			if (executingWorkflowIds.length > 0) {
-				resultsQuery.andWhere(`execution.id NOT IN (:...ids)`, {ids: executingWorkflowIds});
+				resultsQuery.andWhere(`execution.id NOT IN (:...ids)`, { ids: executingWorkflowIds });
 			}
 
 			const resultsPromise = resultsQuery.getMany();
@@ -1873,12 +1879,12 @@ class App {
 						'execution.startedAt',
 					])
 					.orderBy('execution.id', 'DESC')
-					.andWhere(`execution.id IN (:...ids)`, {ids: currentlyRunningExecutionIds});
+					.andWhere(`execution.id IN (:...ids)`, { ids: currentlyRunningExecutionIds });
 
 				if (req.query.filter) {
 					const filter = JSON.parse(req.query.filter as string);
 					if (filter.workflowId !== undefined) {
-						resultsQuery.andWhere('execution.workflowId = :workflowId', {workflowId: filter.workflowId});
+						resultsQuery.andWhere('execution.workflowId = :workflowId', { workflowId: filter.workflowId });
 					}
 				}
 
@@ -1933,7 +1939,7 @@ class App {
 					const returnData: IExecutionsStopData = {
 						mode: result.mode,
 						startedAt: new Date(result.startedAt),
-						stoppedAt: result.stoppedAt ?  new Date(result.stoppedAt) : undefined,
+						stoppedAt: result.stoppedAt ? new Date(result.stoppedAt) : undefined,
 						finished: result.finished,
 					};
 
@@ -1975,7 +1981,7 @@ class App {
 				const returnData: IExecutionsStopData = {
 					mode: result.mode,
 					startedAt: new Date(result.startedAt),
-					stoppedAt: result.stoppedAt ?  new Date(result.stoppedAt) : undefined,
+					stoppedAt: result.stoppedAt ? new Date(result.stoppedAt) : undefined,
 					finished: result.finished,
 				};
 
