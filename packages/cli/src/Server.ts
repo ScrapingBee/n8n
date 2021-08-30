@@ -118,11 +118,11 @@ import { Registry } from 'prom-client';
 
 import * as TagHelpers from './TagHelpers';
 import { Analytics } from './analytics';
+import { IInternalHooksClass } from './Interfaces';
+import { InternalHooks } from './internalHooks';
 import { TagEntity } from './databases/entities/TagEntity';
 import { WorkflowEntity } from './databases/entities/WorkflowEntity';
 import { WorkflowNameRequest } from './WorkflowHelpers';
-import { IInternalHooksClass } from './Interfaces';
-import { InternalHooks } from './internalHooks';
 
 class App {
 
@@ -152,7 +152,6 @@ class App {
 	payloadSizeMax: number;
 
 	presetCredentialsLoaded: boolean;
-	analytics: Analytics;
 
 	constructor() {
 		this.app = express();
@@ -250,8 +249,8 @@ class App {
 		this.frontendSettings.versionCli = this.versions.cli;
 		this.frontendSettings.instanceId = await generateInstanceId() as string;
 
-		this.analytics = new Analytics(this.frontendSettings.instanceId, this.versions.cli);
-		this.internalHooks = new InternalHooks(this.analytics);
+		const analytics = new Analytics(this.frontendSettings.instanceId, this.versions.cli);
+		this.internalHooks = new InternalHooks(analytics);
 
 		await this.externalHooks.run('frontend.settings', [this.frontendSettings]);
 
@@ -2207,7 +2206,7 @@ export async function start(): Promise<void> {
 		console.log(`Version: ${versions.cli}`);
 
 		await app.externalHooks.run('n8n.ready', [app]);
-		app.analytics.track('Instance started');
+		app.internalHooks.onServerStarted();
 	});
 }
 

@@ -266,6 +266,7 @@ export interface IExternalHooksClass {
 }
 
 export interface IInternalHooksClass {
+	onServerStarted(): Promise<void>;
 	onWorkflowSave(workflow: WorkflowEntity): Promise<void>;
 }
 
