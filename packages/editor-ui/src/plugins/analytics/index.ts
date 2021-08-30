@@ -12,8 +12,9 @@ declare module 'vue/types/vue' {
 	}
 }
 
-export function AnalyticsPlugin(vue: typeof _Vue, options: IAnalyticsSettings): void {
-	const analytics = new Analytics(options);
+export function AnalyticsPlugin(vue: typeof _Vue): void {
+	const analytics = new Analytics();
+
 	Object.defineProperty(vue, '$analytics', {
 		get() { return analytics; },
 	});
@@ -26,12 +27,12 @@ class Analytics {
 
 	private analytics?: any; // tslint:disable-line:no-any
 
-	constructor(options: IAnalyticsSettings) {
-		if (options.enabled) {
+	init(options: IAnalyticsSettings) {
+		if (options.enabled && !this.analytics) {
 			if(!options.config) {
 				return;
 			}
-			
+
 			rudderanalytics.load(options.config.key, options.config.url, { logLevel: 'DEBUG' });
 			this.analytics = rudderanalytics;
 		}

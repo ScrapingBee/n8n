@@ -2263,8 +2263,6 @@ export default mixins(
 				return;
 			}
 
-			Vue.use(AnalyticsPlugin , this.$store.getters.analytics);
-
 			this.instance.ready(async () => {
 				try {
 					this.initNodeView();

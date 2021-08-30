@@ -9,12 +9,18 @@
 		<div id="content">
 			<router-view />
 		</div>
+		<Analytics />
 	</div>
 </template>
 
 <script lang="ts">
+import Analytics from './components/Analytics.vue';
+
 export default {
 	name: 'App',
+	components: {
+		Analytics,
+	},
 };
 </script>
 

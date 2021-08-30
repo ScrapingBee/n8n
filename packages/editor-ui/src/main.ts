@@ -22,6 +22,7 @@ import { runExternalHook } from './components/mixins/externalHooks';
 // @ts-ignore
 import vClickOutside from 'v-click-outside';
 import Fragment from 'vue-fragment';
+import { AnalyticsPlugin } from './plugins/analytics';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -203,6 +204,8 @@ Vue.config.productionTip = false;
 router.afterEach((to, from) => {
 	runExternalHook('main.routeChange', store, { from, to });
 });
+
+Vue.use(AnalyticsPlugin);
 
 new Vue({
 	router,
